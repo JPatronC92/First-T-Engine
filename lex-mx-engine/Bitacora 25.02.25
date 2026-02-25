@@ -1,0 +1,68 @@
+Esta es la **Bitácora Oficial del Proyecto** actualizada tras el sprint de hoy.
+Este documento define la identidad, el alcance y el inventario técnico de lo que hemos construido.
+
+---
+
+# 📂 Bitácora de Proyecto: Lex MX Engine
+
+**Fecha de Corte:** 25 de Febrero, 2026 (Corte PM)
+**Estatus:** Pipeline de Ingesta y Versionado Completado (End-to-End)
+**Repositorio:** `JPatronC92/Lex-API-Mx`
+
+---
+
+## 1️⃣ ¿En qué consiste el proyecto? (La Visión)
+
+**Lex MX Engine** es Infraestructura Crítica para el cumplimiento normativo en México. Tratamos la ley como código fuente versionado, permitiendo consultas deterministas en el tiempo ("Time Travel") sin las alucinaciones típicas de los LLMs.
+
+---
+
+## 2️⃣ ¿Qué tenemos construido? (El Inventario Técnico)
+
+Hemos completado el **Pipeline de Automatización Legal**. El sistema ya no solo "recibe" datos, sino que puede "leer" el DOF y "parchear" la ley solo.
+
+### A. Arquitectura de Datos (El Corazón) 🫀
+
+* **Motor Temporal:** PostgreSQL 16 con `DATERANGE` y `ExcludeConstraint`.
+* **Integridad:** Validado matemáticamente el no solapamiento de vigencias.
+* **Modelos:** Separación de Identidad Inmutable (`UnidadEstructural`) y Contenido Versionado (`VersionContenido`).
+
+### B. Componentes de Software (El Código) 🏗️
+
+| Componente | Archivo / Ruta | Estado | Función |
+| --- | --- | --- | --- |
+| **Scraper DOF** | `scrapers/dof_spider.py` | ✅ Terminado | Navega el DOF, filtra decretos y extrae texto con Playwright. |
+| **Cerebro (LLM)** | `infrastructure/llm_client.py` | ✅ Terminado | Parser experto (LiteLLM) que genera `PatchCandidate` desde texto crudo. |
+| **Resolver Legal** | `services/resolver.py` | ✅ Terminado | Traduce "Artículo X" a UUID interno buscando en el historial. |
+| **Motor de Parcheo** | `pipeline/patcher.py` | ✅ Terminado | Ejecuta la cirugía atómica de cerrar vigencias pasadas y abrir futuras. |
+| **API de Historia** | `routers/v1/history.py` | ✅ Terminado | Endpoint `GET /history/articulos/{uuid}?fecha=...` funcional. |
+| **Semilla CFF** | `scripts/seed_cff_2026.py` | ✅ Operativa | Carga el Código Fiscal inicial (Vigencia 2026). |
+
+### C. Flujos Validados (El Pipeline End-to-End) 🧪
+
+1. **DOF -> LLM:** El Scraper baja el texto, el LLM identifica la reforma y genera el JSON de parche.
+2. **LLM -> Patcher:** El Patcher recibe el JSON, el Resolver localiza el artículo original.
+3. **Patcher -> DB:** Se cierra la versión vieja (`[2026-01-01, 2026-06-01)`) y se inserta la nueva (`[2026-06-01, NULL)`).
+4. **Time Travel Query:** Una consulta al API por fecha devuelve la versión correcta según la vigencia.
+
+---
+
+## 3️⃣ Diagrama de Arquitectura Actualizado
+
+```mermaid
+graph TD
+    A[DOF (Diario Oficial)] -->|Playwright Scraper| B(Texto/HTML Decreto)
+    B -->|LLM Parser (LiteLLM)| C{PatchCandidate JSON}
+    C -->|UnidadResolver| D[Patcher Engine]
+    D -->|Transacción Atómica| E[(PostgreSQL Temporal)]
+    E -->|Query por Fecha| F[API REST FastAPI]
+    F -->|JSON Estructurado| G[ERP / Cliente]
+```
+
+---
+
+## 4️⃣ Siguientes Pasos Inmediatos
+
+1. **Interfaz de Validación (Backoffice):** Una UI simple (Streamlit/React) para que el humano revise y apruebe el `PatchCandidate` antes de que el Patcher lo escriba en DB (El "Human-in-the-loop").
+2. **Motor de Cumplimiento (Compliance):** Implementar la lógica para evaluar reglas de negocio (JSON Logic) basadas en el texto de los artículos.
+3. **Despliegue Continuo:** Configurar un CRON Job que corra el Scraper cada mañana a las 7:00 AM.
