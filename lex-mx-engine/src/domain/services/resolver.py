@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
-from typing import Optional, Tuple
+from typing import Optional
 from src.domain.models import Norma, UnidadEstructural, VersionContenido
 
 class UnidadResolver:
@@ -14,7 +14,7 @@ class UnidadResolver:
         
         Args:
             nombre_norma: "Código Fiscal de la Federación" (Búsqueda exacta o like)
-            path_textual: "Artículo 27" (Esto es simplificado, en prod requiere parsing jerárquico)
+            path_textual: "Artículo 27" o "Titulo II > Cap I > Art 27"
         
         Returns:
             UUID de la UnidadEstructural o None si no existe.
@@ -28,15 +28,15 @@ class UnidadResolver:
             print(f"⚠️ Norma no encontrada: {nombre_norma}")
             return None
 
-        # 2. Encontrar la Unidad dentro de esa Norma
-        # NOTA: Aquí asumimos que 'path_textual' coincide con 'nomenclatura_visible' de la ÚLTIMA versión.
-        # Esto es una heurística. En un sistema real, necesitas un árbol de navegación.
-        
+        # 2. Extraer la parte objetivo final (ej: "Art 27" de "Titulo II > Cap I > Art 27")
+        target_nomenclatura = path_textual.split(">")[-1].strip()
+
+        # 3. Encontrar la Unidad dentro de esa Norma usando la nomenclatura objetivo
         stmt_unidad = (
             select(UnidadEstructural)
             .join(VersionContenido)
             .where(UnidadEstructural.norma_id == norma.id)
-            .where(VersionContenido.nomenclatura_visible == path_textual)
+            .where(VersionContenido.nomenclatura_visible.ilike(f"%{target_nomenclatura}%"))
             .order_by(VersionContenido.created_at.desc()) # Buscar en la versión más reciente
             .limit(1)
         )
@@ -47,5 +47,5 @@ class UnidadResolver:
         if unidad:
             return unidad.uuid
         else:
-            print(f"⚠️ Unidad no encontrada en {nombre_norma}: {path_textual}")
+            print(f"⚠️ Unidad no encontrada en {nombre_norma}: {path_textual} ({target_nomenclatura})")
             return None

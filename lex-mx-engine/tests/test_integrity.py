@@ -55,3 +55,45 @@ async def test_overlap_constraint(session):
     # 4. Expect Failure
     with pytest.raises(IntegrityError):
         await session.commit()
+
+@pytest.mark.asyncio
+async def test_non_overlap_constraint(session):
+    """
+    Ensure non-overlapping date ranges for the same unit are accepted.
+    """
+    norma = Norma(nombre_oficial="Ley de Prueba 2", estado="VIGENTE")
+    session.add(norma)
+    await session.flush()
+
+    unidad = UnidadEstructural(
+        norma_id=norma.id,
+        tipo_unidad="ARTICULO",
+        orden_indice=2.0
+    )
+    session.add(unidad)
+    await session.flush()
+
+    # Version A (Jan 1 - Feb 1)
+    v1 = VersionContenido(
+        unidad_uuid=unidad.uuid,
+        nomenclatura_visible="Articulo 2",
+        texto_contenido="Version A",
+        hash_contenido="hash_a",
+        vigencia=Range(date(2024, 1, 1), date(2024, 2, 1))
+    )
+    session.add(v1)
+    await session.commit()
+
+    # Version B (Feb 1 - Mar 1) -> No overlap since default is [)
+    v2 = VersionContenido(
+        unidad_uuid=unidad.uuid,
+        nomenclatura_visible="Articulo 2",
+        texto_contenido="Version B",
+        hash_contenido="hash_b",
+        vigencia=Range(date(2024, 2, 1), date(2024, 3, 1))
+    )
+    session.add(v2)
+    
+    # Expect Success
+    await session.commit()
+    assert v2.id is not None

@@ -1,4 +1,5 @@
 import json
+import re
 from litellm import completion
 from typing import Optional, Dict, Any
 from src.core.config import get_settings
@@ -57,8 +58,14 @@ class LLMClient:
             raw_content = response.choices[0].message.content
             print(f"📄 Respuesta LLM recibida.")
             
+            # Limpiar posible formato Markdown
+            cleaned_content = raw_content.strip()
+            if cleaned_content.startswith("```"):
+                cleaned_content = re.sub(r"^```(?:json)?\n", "", cleaned_content)
+                cleaned_content = re.sub(r"\n```$", "", cleaned_content)
+            
             # Parsear y validar con Pydantic
-            data = json.loads(raw_content)
+            data = json.loads(cleaned_content)
             
             # El LLM puede devolver una lista de parches si hay varios artículos reformados,
             # pero por ahora el esquema PatchCandidate es individual. 
