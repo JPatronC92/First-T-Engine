@@ -14,28 +14,26 @@ By leveraging PostgreSQL's advanced temporal ranges and Qdrant's vector capabili
 
 ---
 
-## 2️⃣ Technical Inventory
+## 2️⃣ Technical Inventory (Work Done in this Session) 🛠️
 
-### A. Data Architecture (Temporal Heart) 🫀
+During this session, we transformed the project's identity and capabilities to reach "Enterprise-Grade" level.
 
-* **Temporal Engine:** PostgreSQL 16 with `DATERANGE` and `ExcludeConstraint`.
-* **Integrity:** Guaranteed non-overlapping validity ranges via `GiST` indexes at the database level.
-* **Models:** Clean separation between Immutable Identity (`ReglaIdentidad`) and Versioned Logic (`ReglaVersion`).
+### A. The Pivot (Lex-MX -> Tempus) 🚀
+*   **Agnostic Architecture:** Removed all hardcoded legal dependencies to create a universal rule engine for any sector (Aduanas, Fintech, Healthcare).
+*   **Repo Consolidation:** Refactored the entire repository structure, moving from a nested `lex-mx-engine/` folder to a clean, flat root structure.
+*   **Global Rebranding:** Updated `pyproject.toml`, `config.py`, and `docker-compose.yml` to reflect the **Tempus Rule Engine** identity.
 
-### B. Core API Endpoints 🌐
+### B. Compliance Guard (Input Validation) 🛡️
+*   **JSON Schema Integration:** Added pre-execution validation. Now, rules can define an optional JSON Schema to verify the ERP/Bank transaction context *before* evaluating logic, preventing data errors.
 
-| Endpoint | Status | Description |
-| --- | --- | --- |
-| `POST /api/v1/compliance/evaluate` | ✅ Operational | **Universal Engine**. Evaluates a generic transaction context against all active rules for a specific `fecha_operacion`. Includes **JSON Schema validation** for inputs. |
-| `GET /api/v1/history/articulos/{uuid}/historial` | ✅ Operational | Audit trail. Returns the full lifecycle (past, present, future) of any versioned entity. |
+### C. The Semantic Wing (RAG Infrastructure) 🧠
+*   **Qdrant Vector DB:** Implemented the infrastructure to vectorize rules with strict temporal metadata.
+*   **Universal Evaluator:** Created the `POST /api/v1/compliance/evaluate` endpoint, capable of "Time-Travel" for any rule set.
 
-### C. System Components 🏗️
-
-| Component | Path | Function |
-| --- | --- | --- |
-| **Compliance Engine** | `src/domain/services/compliance_engine.py` | Deterministic evaluator using `json-logic` and pre-execution schema validation. |
-| **Vector Store (Qdrant)** | `src/infrastructure/vector_store.py` | **Semantic Wing**. Stores embeddings of rules filtered strictly by their temporal metadata. |
-| **CI/CD Pipeline** | `.github/workflows/main.yml` | Automated testing with Postgres and Qdrant services in the cloud. |
+### D. Engineering Standards ⚙️
+*   **CI/CD Pipeline:** Implemented GitHub Actions (`.github/workflows/main.yml`) that spins up ephemeral Postgres and Qdrant services to validate tests on every push.
+*   **Professional Docs:** Created a high-quality `README.md` with architectural diagrams and a comprehensive guide.
+*   **Security & GitFlow:** Managed Git branches, commits, and remote synchronization via secure PATs.
 
 ---
 
@@ -64,8 +62,11 @@ graph TD
 
 ---
 
-## 4️⃣ Roadmap
+## 4️⃣ Roadmap (What's Next?) 🛤️
 
-1. **Rust Engine Migration:** Rewrite the core evaluator in Rust for ultra-high performance (100k+ transactions per second).
-2. **Backoffice UI:** A dashboard to manage rules, visualize temporal ranges, and approve new rule versions proposed by AI.
-3. **Multi-Tenant Support:** Allowing different organizations to host their own isolated rule sets on the same infrastructure.
+The next phase aims for performance and enterprise scaling:
+
+1.  **🦀 Rust Core Migration:** Rewriting the core logic in Rust to achieve <1ms latency and handle 100k+ TPS, making it suitable for high-frequency trading or massive global trade hubs.
+2.  **🖥️ Backoffice UI:** Developing a React/Streamlit dashboard to visualize temporal ranges, manage rules, and provide a "Human-in-the-Loop" approval system for AI-proposed rules.
+3.  **🏢 Multi-Tenant Support:** Architecture to isolate rule sets and data for different corporate clients or industries within the same infrastructure.
+4.  **🔗 ERP Adapters:** Building pre-set adapters/schemas for SAP, NetSuite, and major banking APIs.
