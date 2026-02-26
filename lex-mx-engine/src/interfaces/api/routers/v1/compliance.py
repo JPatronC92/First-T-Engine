@@ -7,7 +7,7 @@ from sqlalchemy.orm import joinedload
 from src.interfaces.api.dependencies import SessionDep
 from src.domain.services.compliance_engine import ComplianceEngine
 from src.domain.models import ReglaVersion, ReglaIdentidad
-from src.domain.schemas.compliance import ReglaEvaluable
+from src.domain.schemas.compliance import ReglaEvaluable, UniversalEvaluateRequest, ResultadoEvaluacion
 
 router = APIRouter()
 engine = ComplianceEngine()
@@ -20,6 +20,39 @@ class ComplianceCheckRequest(BaseModel):
 class ComplianceCheckResponse(BaseModel):
     compliant: bool
     violations: List[str] = []
+
+@router.post("/evaluate", response_model=ResultadoEvaluacion)
+async def evaluate_universal(request: UniversalEvaluateRequest, session: SessionDep):
+    """
+    Endpoint universal de evaluación de reglas con Time-Travel.
+    """
+    # 1. Fetch active rules for the exact date (Time-Travel)
+    stmt = (
+        select(ReglaVersion)
+        .options(joinedload(ReglaVersion.regla))
+        .where(ReglaVersion.vigencia.contains(request.fecha_operacion))
+    )
+    result = await session.execute(stmt)
+    active_versiones = result.scalars().all()
+    
+    # 2. Mapear a DTOs de evaluación
+    reglas_evaluables = []
+    for v in active_versiones:
+        reglas_evaluables.append(
+            ReglaEvaluable(
+                id_version=str(v.id),
+                clave_regla=v.regla.clave_interna,
+                logica=v.logica_json,
+                template_error=v.template_error,
+                prioridad=v.prioridad,
+                severidad=v.severidad
+            )
+        )
+        
+    # 3. Evaluate rules against request transaction context
+    resultado = engine.evaluar(request.transaccion, reglas_evaluables)
+    
+    return resultado
 
 @router.post("/check", response_model=ComplianceCheckResponse)
 async def check_compliance(request: ComplianceCheckRequest, session: SessionDep):

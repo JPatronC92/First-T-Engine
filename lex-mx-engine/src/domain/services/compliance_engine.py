@@ -2,7 +2,7 @@ import logging
 from string import Template
 from typing import Dict, Any, List
 from json_logic import jsonLogic
-from src.domain.schemas.compliance import ReglaEvaluable, ResultadoEvaluacion
+from src.domain.schemas.compliance import ReglaEvaluable, ResultadoEvaluacion, DetalleFallo
 
 # A. Logging Estructurado
 logger = logging.getLogger("lex_mx.compliance_engine")
@@ -16,6 +16,7 @@ class ComplianceEngine:
     def evaluar(self, contexto: Dict[str, Any], reglas: List[ReglaEvaluable]) -> ResultadoEvaluacion:
         errores = []
         warnings = []
+        detalles_fallos = []
         reglas_ejecutadas = 0
         
         # B. Ordenar por prioridad (Las críticas primero para Fail-Fast si fuera necesario)
@@ -35,6 +36,13 @@ class ComplianceEngine:
                     # D. Interpolación Segura
                     mensaje = self._formatear_mensaje(regla.template_error, contexto)
                     
+                    detalle = DetalleFallo(
+                        clave=regla.clave_regla,
+                        severidad=regla.severidad,
+                        mensaje=mensaje
+                    )
+                    detalles_fallos.append(detalle)
+                    
                     if regla.severidad in ['ERROR', 'BLOCKER']:
                         logger.debug(f"Regla fallida (BLOCKING): {regla.clave_regla}")
                         errores.append(mensaje)
@@ -47,6 +55,7 @@ class ComplianceEngine:
                 # E. Manejo de Excepciones sin romper el flujo completo (o sí, según diseño)
                 logger.error(f"Error crítico ejecutando regla {regla.clave_regla}: {str(e)}", exc_info=True)
                 errores.append(f"Error de sistema en regla {regla.clave_regla}")
+                detalles_fallos.append(DetalleFallo(clave=regla.clave_regla, severidad="ERROR", mensaje="Error de sistema"))
 
         es_valido = len(errores) == 0
         
@@ -55,7 +64,8 @@ class ComplianceEngine:
             score_cumplimiento=1.0 if es_valido else 0.0, # Simplificado
             errores=errores,
             warnings=warnings,
-            reglas_ejecutadas=reglas_ejecutadas
+            reglas_ejecutadas=reglas_ejecutadas,
+            detalles_fallos=detalles_fallos
         )
 
     def _formatear_mensaje(self, template_str: str, contexto: Dict) -> str:
