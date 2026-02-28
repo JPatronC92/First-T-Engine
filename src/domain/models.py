@@ -18,10 +18,11 @@ class Base(DeclarativeBase):
 # Enums
 # We need to use create_type=False if we want to manage it purely via migrations,
 # or handle it carefully. For now, we define it as part of the models.
-EstadoNorma = ENUM('VIGENTE', 'ABROGADA', 'DEROGADA', name='estado_norma', create_type=False)
-TipoUnidad = ENUM('TITULO', 'CAPITULO', 'ARTICULO', 'FRACCION', 'PARRAFO', name='tipo_unidad', create_type=False)
-SeveridadRegla = ENUM('INFO', 'WARNING', 'ERROR', 'BLOCKER', name='severidad_regla', create_type=False)
-TipoRegla = ENUM('OBLIGATORIA', 'SUGERENCIA', 'CALCULO', name='tipo_regla', create_type=False)
+# Changing to create_type=True so tests using Base.metadata.create_all() can automatically create the ENUMs
+EstadoNorma = ENUM('VIGENTE', 'ABROGADA', 'DEROGADA', name='estado_norma', create_type=True)
+TipoUnidad = ENUM('TITULO', 'CAPITULO', 'ARTICULO', 'FRACCION', 'PARRAFO', name='tipo_unidad', create_type=True)
+SeveridadRegla = ENUM('INFO', 'WARNING', 'ERROR', 'BLOCKER', name='severidad_regla', create_type=True)
+TipoRegla = ENUM('OBLIGATORIA', 'SUGERENCIA', 'CALCULO', name='tipo_regla', create_type=True)
 
 class Norma(Base):
     __tablename__ = "normas"
