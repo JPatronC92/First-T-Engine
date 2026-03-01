@@ -27,7 +27,11 @@ In Fintech, SaaS, and Marketplaces, pricing rules change constantly. You have mu
 *   **📊 Mass Simulation (Batch-Audit):** Test new pricing tiers against millions of historical transactions *before* deploying them to production to forecast revenue impact.
 
 ### 🦀 Performance (Rust Native Core)
-Tempus is written in Python for developer speed, but its mathematical heart beats in **Rust**. By using `PyO3` and `maturin`, the engine delegates all determinist math to a pre-compiled Rust extension (`tempus_core`), capable of pushing **+330,000 evaluations per second** on a single thread.
+Tempus is written in Python for developer speed, but its mathematical heart beats in **Rust**. By using `PyO3`, the engine delegates all deterministic math to a pre-compiled Rust extension (`tempus_core`). 
+
+**Key optimizations:**
+- **`evaluate_fee`**: Single-transaction evaluation with sub-millisecond latency.
+- **`evaluate_batch`**: High-throughput processing that eliminates FFI overhead by iterating over transaction batches directly in Rust, capable of pushing **+1.3M evaluations per second**.
 
 ---
 
@@ -99,4 +103,5 @@ Send a transaction payload and an execution date. The engine will automatically 
 ---
 
 ## 📄 License
-MIT License. Created by [JPatronC92](https://github.com/JPatronC92).
+**Proprietary Commercial License**. All rights reserved. 
+Commercial use, redistribution, or exploitation requires a valid commercial license agreement and payment to the author (**JPatronC92**). See the `LICENSE` file for full terms.
