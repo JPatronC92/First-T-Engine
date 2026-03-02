@@ -16,3 +16,11 @@ build/
 lex_pgdata/
 qdrant_data/
 .pytest_cache/
+
+# Node
+node_modules/
+
+# Rust
+target/
+**/*.rs.bk
+
