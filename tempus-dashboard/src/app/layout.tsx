@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tempus | Deterministic Billing",
-  description: "High-performance time-travel pricing engine.",
+  title: "Tempus | Decisiones Deterministas",
+  description: "Infraestructura de decisiones deterministas y facturación.",
 };
 
 export default function RootLayout({
@@ -23,13 +24,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <nav style={{ padding: '1rem 2rem', borderBottom: '1px solid #334155', display: 'flex', gap: '2rem', background: '#0f172a' }}>
-          <div style={{ fontWeight: 'bold', color: '#60a5fa' }}>TEMPUS</div>
-          <a href="/" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Home</a>
-          <a href="/dashboard" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Batch Simulator</a>
-          <a href="/builder" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Visual Rule Builder</a>
+        <nav className="nav-container">
+          <Link href="/" className="nav-logo">
+            TEMPUS
+          </Link>
+          <div className="nav-links">
+            <Link href="/builder">Configuración</Link>
+            <Link href="/dashboard">Simulación</Link>
+            <Link href="/audit">Auditoría</Link>
+          </div>
         </nav>
         {children}
       </body>

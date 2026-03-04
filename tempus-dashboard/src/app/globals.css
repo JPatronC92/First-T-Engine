@@ -1,12 +1,26 @@
 :root {
-  --bg-color: #0f172a;
-  --text-color: #f8fafc;
-  --card-bg: #1e293b;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --border-color: #334155;
+  --bg-color: #ffffff;
+  --text-color: #111827;
+  --text-muted: #6b7280;
+  --card-bg: #f9fafb;
+  --accent: #000000;
+  --accent-hover: #374151;
+  --border-color: #e5e7eb;
   --success: #10b981;
   --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #0a0a0a;
+    --text-color: #f3f4f6;
+    --text-muted: #9ca3af;
+    --card-bg: #111111;
+    --accent: #ffffff;
+    --accent-hover: #e5e7eb;
+    --border-color: #262626;
+  }
 }
 
 * {
@@ -19,71 +33,47 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.6;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 3rem 2rem;
 }
 
 .header {
-  text-align: center;
   margin-bottom: 3rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 2rem;
 }
 
 .header h1 {
-  font-size: 2.5rem;
-  background: linear-gradient(to right, #60a5fa, #a78bfa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 2rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   margin-bottom: 0.5rem;
 }
 
 .header p {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 1.1rem;
-}
-
-.dashboard-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 2rem;
-}
-
-@media (max-width: 900px) {
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
 }
 
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
 }
 
 .card h2 {
-  margin-bottom: 1rem;
-  color: #e2e8f0;
   font-size: 1.25rem;
-}
-
-.card p.desc {
-  color: #cbd5e1;
+  font-weight: 500;
   margin-bottom: 1.5rem;
-  font-size: 0.95rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
 }
 
 .input-group {
@@ -94,96 +84,141 @@ body {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--text-color);
   font-size: 0.9rem;
 }
 
-.input-group input {
+.input-group input, .input-group select {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   border-radius: 6px;
   border: 1px solid var(--border-color);
-  background: #0f172a;
-  color: #f8fafc;
+  background: var(--bg-color);
+  color: var(--text-color);
   font-size: 1rem;
+  transition: border-color 0.2s;
 }
 
-.input-group input:focus {
+.input-group input:focus, .input-group select:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: var(--text-muted);
 }
 
 .btn-primary {
-  width: 100%;
-  padding: 1rem;
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
   background-color: var(--accent);
-  color: white;
+  color: var(--bg-color);
   border: none;
   border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
-  margin-top: auto;
+  transition: background-color 0.2s, opacity 0.2s;
+  text-align: center;
 }
 
 .btn-primary:hover {
   background-color: var(--accent-hover);
+  color: var(--bg-color);
 }
 
 .btn-primary:disabled {
-  background-color: var(--border-color);
+  opacity: 0.5;
   cursor: not-allowed;
-  color: #94a3b8;
+}
+
+.btn-secondary {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-align: center;
+}
+
+.btn-secondary:hover {
+  background-color: var(--card-bg);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
 }
 
 .stat-box {
-  background: #0f172a;
   padding: 1.5rem;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  background: var(--bg-color);
 }
 
 .stat-label {
-  color: #94a3b8;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  display: block;
 }
 
 .stat-value {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #f8fafc;
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: var(--text-color);
 }
 
-.stat-value.success { color: var(--success); }
-.stat-value.warning { color: var(--warning); }
-.stat-value.accent { color: var(--accent); }
-
-.chart-container {
-  width: 100%;
-  height: 350px;
-  margin-top: 1rem;
+/* Nav */
+.nav-container {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-color);
 }
 
-.error {
-  color: #ef4444;
-  margin-top: 1rem;
+.nav-logo {
+  font-weight: 600;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.95rem;
   font-weight: 500;
-  background: rgba(239, 68, 68, 0.1);
-  padding: 1rem;
-  border-radius: 6px;
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  transition: color 0.2s;
 }
+
+.nav-links a:hover {
+  color: var(--text-color);
+}
+
+/* Utils */
+.mt-4 { margin-top: 1rem; }
+.mt-8 { margin-top: 2rem; }
+.mb-4 { margin-bottom: 1rem; }
+.text-right { text-align: right; }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
