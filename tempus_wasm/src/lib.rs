@@ -63,6 +63,42 @@ pub fn evaluate_batch_wasm(rule_json: &str, contexts_json: &str) -> Result<Strin
 }
 
 // ─────────────────────────────────────────────────────────────
+// 3. Multi-rule batch evaluation (browser) — evaluates array of rules
+// ─────────────────────────────────────────────────────────────
+#[wasm_bindgen]
+pub fn evaluate_batch_multi_wasm(rules_json: &str, contexts_json: &str) -> Result<String, JsValue> {
+    let rules: Vec<Value> = serde_json::from_str(rules_json)
+        .map_err(|e| JsValue::from_str(&format!("Rules parse error: {}", e)))?;
+
+    let contexts: Vec<Value> = serde_json::from_str(contexts_json)
+        .map_err(|e| JsValue::from_str(&format!("Contexts parse error: {}", e)))?;
+
+    let mut results: Vec<Value> = Vec::with_capacity(contexts.len());
+
+    for ctx in &contexts {
+        let mut rule_fees: Vec<f64> = Vec::with_capacity(rules.len());
+        let mut total_fee = 0.0;
+
+        for rule in &rules {
+            let fee = match jsonlogic::apply(rule, ctx) {
+                Ok(val) => extract_numeric(val).unwrap_or(0.0),
+                Err(_) => 0.0,
+            };
+            rule_fees.push(fee);
+            total_fee += fee;
+        }
+
+        results.push(serde_json::json!({
+            "total_fee": total_fee,
+            "rule_fees": rule_fees
+        }));
+    }
+
+    serde_json::to_string(&results)
+        .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e)))
+}
+
+// ─────────────────────────────────────────────────────────────
 // 3. Validate a json-logic rule
 // ─────────────────────────────────────────────────────────────
 #[wasm_bindgen]

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tempus | Decisiones Deterministas",
-  description: "Infraestructura de decisiones deterministas y facturación.",
+  title: "Tempus | Simulador de Comisiones",
+  description:
+    "Simula modelos de comisiones al instante con el motor Tempus en Rust/WebAssembly. 100% en tu navegador, sin registro, gratis.",
 };
 
 export default function RootLayout({
@@ -26,16 +26,6 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <nav className="nav-container">
-          <Link href="/" className="nav-logo">
-            TEMPUS
-          </Link>
-          <div className="nav-links">
-            <Link href="/builder">Configuración</Link>
-            <Link href="/dashboard">Simulación</Link>
-            <Link href="/audit">Auditoría</Link>
-          </div>
-        </nav>
         {children}
       </body>
     </html>
