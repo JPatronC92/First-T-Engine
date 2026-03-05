@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
   turbopack: {},
   webpack: (config) => {
     config.experiments = {
@@ -13,3 +12,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+

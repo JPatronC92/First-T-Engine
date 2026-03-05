@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { initWasm, getWasm } from "../lib/wasm";
 import { TEMPLATES, PricingTemplate } from "../data/templates";
 import styles from "./simulator.module.css";
@@ -8,7 +8,9 @@ import styles from "./simulator.module.css";
 interface SimResult {
     fees: number[];
     totalRevenue: number;
+    totalProcessed: number;
     avgFee: number;
+    avgRate: number;
     timeMs: number;
 }
 
@@ -20,6 +22,9 @@ export default function PublicSimulator() {
     const [result, setResult] = useState<SimResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [txCount, setTxCount] = useState(10);
+    const [showAdvanced, setShowAdvanced] = useState(false);
+    const [toastVisible, setToastVisible] = useState(false);
+    const resultsRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
         initWasm().then(() => setWasmReady(true)).catch(console.error);
@@ -31,10 +36,10 @@ export default function PublicSimulator() {
         const ruleParam = params.get("rule");
         const txParam = params.get("tx");
         if (ruleParam) {
-            try { setRuleJson(atob(ruleParam)); } catch { /* ignore */ }
+            try { setRuleJson(atob(ruleParam)); setShowAdvanced(true); } catch { /* ignore */ }
         }
         if (txParam) {
-            try { setTxInput(atob(txParam)); } catch { /* ignore */ }
+            try { setTxInput(atob(txParam)); setShowAdvanced(true); } catch { /* ignore */ }
         }
     }, []);
 
@@ -54,7 +59,7 @@ export default function PublicSimulator() {
             const wasm = getWasm();
             let transactions: { amount: number }[];
             try { transactions = JSON.parse(txInput); } catch {
-                setError("Invalid JSON in transactions input");
+                setError("Error en los datos de transacciones");
                 return;
             }
 
@@ -72,11 +77,19 @@ export default function PublicSimulator() {
 
             const fees: number[] = JSON.parse(resultJson);
             const totalRevenue = fees.reduce((a, b) => a + b, 0);
+            const totalProcessed = expandedTx.reduce((a, b) => a + b.amount, 0);
             const avgFee = totalRevenue / fees.length;
+            const avgRate = totalProcessed > 0 ? (totalRevenue / totalProcessed) * 100 : 0;
 
-            setResult({ fees, totalRevenue, avgFee, timeMs: elapsed });
-        } catch (e: any) {
-            setError(e.message || String(e));
+            setResult({ fees, totalRevenue, totalProcessed, avgFee, avgRate, timeMs: elapsed });
+
+            // Smooth scroll to results
+            setTimeout(() => {
+                resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 100);
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : String(e);
+            setError(message);
         }
     }, [wasmReady, ruleJson, txInput, txCount]);
 
@@ -84,29 +97,49 @@ export default function PublicSimulator() {
         const base = window.location.origin + window.location.pathname;
         const url = `${base}?rule=${encodeURIComponent(btoa(ruleJson))}&tx=${encodeURIComponent(btoa(txInput))}`;
         navigator.clipboard.writeText(url);
+        setToastVisible(true);
+        setTimeout(() => setToastVisible(false), 2500);
+    };
+
+    const txLabels: Record<number, string> = {
+        10: "10 transacciones",
+        100: "100 transacciones",
+        1000: "1,000 transacciones",
+        10000: "10,000 transacciones",
+        50000: "50,000 transacciones",
     };
 
     return (
         <main className={styles.container}>
+            {/* Toast */}
+            <div className={`${styles.toast} ${toastVisible ? styles.toastVisible : ""}`}>
+                ✅ Link copiado al portapapeles
+            </div>
+
+            {/* Hero */}
             <section className={styles.hero}>
                 <div className={styles.glowBlob}></div>
+                <p className={styles.badge}>100% en tu navegador · Sin registro · Gratis</p>
                 <h1 className={styles.title}>
-                    Tempus <span className={styles.accent}>Public Simulator</span>
+                    Simula tu modelo de <span className={styles.accent}>comisiones</span> al instante
                 </h1>
                 <p className={styles.subtitle}>
-                    Test any pricing structure against thousands of transactions — powered by Rust, running in your browser. Zero backend. Zero cost.
+                    Elige un modelo de cobro, ajusta las transacciones y descubre en milisegundos
+                    cuánto generarías en comisiones. Motor Rust ejecutándose directo en tu navegador.
                 </p>
-                {!wasmReady && <div className={styles.loading}>⏳ Loading Rust Engine (WASM)...</div>}
+                {!wasmReady && <div className={styles.loading}>⏳ Cargando motor de simulación...</div>}
             </section>
 
-            <section className={styles.templates}>
-                <h2>Choose a Pricing Model</h2>
+            {/* Step 1: Choose Model */}
+            <section className={styles.section}>
+                <h2 className={styles.stepTitle}><span className={styles.stepNum}>1</span> Elige un modelo de cobro</h2>
                 <div className={styles.templateGrid}>
                     {TEMPLATES.map((t) => (
                         <button
                             key={t.id}
                             className={`${styles.templateCard} ${selectedTemplate.id === t.id ? styles.active : ""}`}
                             onClick={() => selectTemplate(t)}
+                            aria-label={`Seleccionar modelo: ${t.name}`}
                         >
                             <span className={styles.templateIcon}>{t.icon}</span>
                             <strong>{t.name}</strong>
@@ -116,75 +149,75 @@ export default function PublicSimulator() {
                 </div>
             </section>
 
-            <section className={styles.editor}>
-                <div className={styles.editorPanel}>
-                    <h3>📐 Pricing Rule (json-logic)</h3>
-                    <textarea
-                        className={styles.codeArea}
-                        value={ruleJson}
-                        onChange={(e) => setRuleJson(e.target.value)}
-                        rows={10}
-                    />
-                </div>
-                <div className={styles.editorPanel}>
-                    <h3>💰 Transactions (JSON array)</h3>
-                    <textarea
-                        className={styles.codeArea}
-                        value={txInput}
-                        onChange={(e) => setTxInput(e.target.value)}
-                        rows={10}
-                    />
+            {/* Step 2: Volume */}
+            <section className={styles.section}>
+                <h2 className={styles.stepTitle}><span className={styles.stepNum}>2</span> ¿Cuántas transacciones quieres simular?</h2>
+                <div className={styles.volumeSelector}>
+                    {Object.entries(txLabels).map(([val, label]) => (
+                        <button
+                            key={val}
+                            className={`${styles.volumeBtn} ${txCount === Number(val) ? styles.volumeActive : ""}`}
+                            onClick={() => setTxCount(Number(val))}
+                            aria-label={`Simular ${label}`}
+                        >
+                            {label}
+                        </button>
+                    ))}
                 </div>
             </section>
 
-            <section className={styles.controls}>
-                <div className={styles.txCountControl}>
-                    <label>Multiply to:</label>
-                    <select value={txCount} onChange={(e) => setTxCount(Number(e.target.value))}>
-                        <option value={10}>10 txs</option>
-                        <option value={100}>100 txs</option>
-                        <option value={1000}>1,000 txs</option>
-                        <option value={10000}>10,000 txs</option>
-                        <option value={50000}>50,000 txs</option>
-                    </select>
+            {/* Step 3: Run */}
+            <section className={styles.section} style={{ textAlign: "center" }}>
+                <h2 className={styles.stepTitle}><span className={styles.stepNum}>3</span> Ejecuta la simulación</h2>
+                <div className={styles.actionRow}>
+                    <button
+                        className={styles.runBtn}
+                        onClick={runSimulation}
+                        disabled={!wasmReady}
+                        aria-label="Ejecutar simulación"
+                    >
+                        🦀 Simular Ahora
+                    </button>
+                    <button
+                        className={styles.shareBtn}
+                        onClick={copyShareUrl}
+                        aria-label="Copiar link para compartir"
+                    >
+                        🔗 Compartir
+                    </button>
                 </div>
-                <button className={styles.runBtn} onClick={runSimulation} disabled={!wasmReady}>
-                    🦀 Run Simulation
-                </button>
-                <button className={styles.shareBtn} onClick={copyShareUrl}>
-                    🔗 Copy Share URL
-                </button>
             </section>
 
             {error && <div className={styles.errorBox}>❌ {error}</div>}
 
+            {/* Results */}
             {result && (
-                <section className={styles.results}>
-                    <h2>Simulation Results</h2>
+                <section className={styles.results} ref={resultsRef}>
+                    <h2>📊 Resultados de la Simulación</h2>
                     <div className={styles.statsRow}>
                         <div className={styles.statCard}>
                             <h3>${result.totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
-                            <p>Total Revenue (Fees)</p>
+                            <p>Ingresos por Comisiones</p>
                         </div>
                         <div className={styles.statCard}>
-                            <h3>${result.avgFee.toLocaleString("en-US", { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</h3>
-                            <p>Average Fee</p>
+                            <h3>${result.totalProcessed.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                            <p>Volumen Total Procesado</p>
+                        </div>
+                        <div className={styles.statCard}>
+                            <h3>{result.avgRate.toFixed(3)}%</h3>
+                            <p>Tasa Efectiva Promedio</p>
                         </div>
                         <div className={styles.statCard}>
                             <h3>{result.timeMs.toFixed(2)} ms</h3>
-                            <p>Evaluation Time</p>
-                        </div>
-                        <div className={styles.statCard}>
-                            <h3>{result.fees.length.toLocaleString()}</h3>
-                            <p>Transactions Processed</p>
+                            <p>Tiempo de Cálculo</p>
                         </div>
                     </div>
 
                     <div className={styles.feeTable}>
-                        <h3>Fee Breakdown (first 20)</h3>
+                        <h3>Desglose por Transacción (primeras 20)</h3>
                         <table>
                             <thead>
-                                <tr><th>#</th><th>Amount</th><th>Fee</th><th>Rate</th></tr>
+                                <tr><th>#</th><th>Monto</th><th>Comisión</th><th>Tasa</th></tr>
                             </thead>
                             <tbody>
                                 {result.fees.slice(0, 20).map((fee, i) => {
@@ -206,10 +239,47 @@ export default function PublicSimulator() {
                 </section>
             )}
 
+            {/* Advanced Toggle */}
+            <section className={styles.section}>
+                <button
+                    className={styles.advancedToggle}
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    aria-expanded={showAdvanced}
+                    aria-label="Modo avanzado: editar reglas y datos manualmente"
+                >
+                    {showAdvanced ? "▼" : "▶"} Modo Avanzado — Editar reglas y datos manualmente
+                </button>
+                {showAdvanced && (
+                    <div className={styles.editor}>
+                        <div className={styles.editorPanel}>
+                            <h3>Regla de Pricing (JSON)</h3>
+                            <textarea
+                                className={styles.codeArea}
+                                value={ruleJson}
+                                onChange={(e) => setRuleJson(e.target.value)}
+                                rows={10}
+                                aria-label="Editor de regla de pricing en JSON"
+                            />
+                        </div>
+                        <div className={styles.editorPanel}>
+                            <h3>Transacciones (JSON)</h3>
+                            <textarea
+                                className={styles.codeArea}
+                                value={txInput}
+                                onChange={(e) => setTxInput(e.target.value)}
+                                rows={10}
+                                aria-label="Editor de transacciones en JSON"
+                            />
+                        </div>
+                    </div>
+                )}
+            </section>
+
+            {/* Footer */}
             <footer className={styles.footer}>
                 <p>
-                    Powered by <strong>Tempus Engine</strong> — Rust-native pricing compiled to WebAssembly.
-                    <br />All calculations run locally in your browser. Your data never leaves your machine.
+                    Powered by <strong>Tempus Engine</strong> — Motor de pricing en Rust compilado a WebAssembly.
+                    <br />Todos los cálculos se ejecutan localmente en tu navegador. Tus datos nunca salen de tu máquina.
                 </p>
             </footer>
         </main>
