@@ -140,4 +140,32 @@ To transition from development to a production-ready state, we are migrating fro
 3. **Validation:** Execute full batch simulation tests against the live endpoint to measure true network latency and scaling performance under load.
 
 ---
+
+## 6️⃣ Session Log — March 04-05, 2026 🚀🦀
+
+### A. Strategic Pivot: Public Simulator as PLG Tool
+*   **Decision:** The first go-to-market phase is a free, public pricing simulator — the "Desmos of Pricing". This builds brand recognition, generates organic traffic, and creates a funnel to enterprise sales.
+*   **Architecture:** Rust core compiled to WASM runs entirely in the user's browser. Zero backend cost (Vercel free tier). Data never leaves the user's machine.
+
+### B. Branch `public-sim` Created 🌿
+*   **Strategy:** `main` stays as enterprise API (PyO3 + Cloud Run). `public-sim` hosts the free simulator (WASM + Vercel).
+
+### C. Rust → WASM Compilation 🦀→🌐
+*   **Action:** Created `tempus_wasm/` crate with `wasm-bindgen`. Exported `evaluate_fee_wasm`, `evaluate_batch_wasm`, `validate_rule_wasm`, `get_core_info_wasm`.
+*   **Result:** Compiled to 212KB `.wasm` file via `wasm-pack --target web --release` in 28 seconds.
+
+### D. Public Simulator UI 📊
+*   **Action:** Built the full Next.js simulator with 4 pricing templates (Marketplace, Flat %, SaaS, Staircase Volume).
+*   **UX Redesign:** After user feedback ("too technical"), redesigned with numbered step flow in Spanish:
+    1. Elige un modelo de cobro (template cards)
+    2. ¿Cuántas transacciones quieres simular? (pill selector: 10 → 50K)
+    3. Ejecuta la simulación (Run + Share buttons)
+*   **Advanced Mode:** JSON editors hidden behind "Modo Avanzado" toggle.
+*   **Shareable URLs:** Base64-encoded rule + transaction data in query params.
+
+### E. Build & Push ✅
+*   Production build verified (webpack mode for WASM support). All 6 routes compiled.
+*   Branch `public-sim` pushed to GitHub.
+
+---
 *Signed: JPatronC92 & Tempus Co-Pilot.*
