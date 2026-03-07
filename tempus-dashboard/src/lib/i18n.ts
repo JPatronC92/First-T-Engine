@@ -16,7 +16,7 @@ export const dict = {
         engineNote: "Rust + WebAssembly · 0ms latency",
         empty: {
             headline: "Simulate the financial impact of your business rules",
-            sub: "Pick a scenario, adjust the parameters, and hit Run.",
+            sub: "Discover how much revenue you're leaving on the table. Adjust the parameters below to instantly simulate your financial impact.",
             stat1label: "Revenue Impact",
             stat1val: "$—",
             stat2label: "Throughput",
@@ -26,9 +26,9 @@ export const dict = {
         },
         results: {
             title: "Impact Analysis",
-            baseline: "Baseline",
+            baseline: "Base Revenue",
             projected: "Projected",
-            delta: "Delta"
+            delta: "Net Impact"
         },
         telemetry: {
             header: "Engine Report",
@@ -69,9 +69,9 @@ export const dict = {
         },
         businessConclusion: {
             title: "Business Conclusion",
-            positive: "By applying this new structure, you have discovered {amount} in previously lost revenue (Billing Drift) that Tempus would capture automatically with zero latency risks.",
-            negative: "Applying this structure results in a {amount} variance compared to the baseline, enabling you to deploy aggressive pricing strategies safely.",
-            neutral: "This structure maintains your baseline revenue while moving your pricing logic to a deterministic, zero-latency engine."
+            positive: "By switching to this pricing structure, your business would generate an additional {amount} in new revenue. Tempus processes these complex rules instantly, ensuring you never drop a transaction or overcharge a customer.",
+            negative: "Applying this structure results in a {amount} variance compared to your base revenue. This ensures you can deploy aggressive pricing strategies safely, knowing the exact impact before shipping.",
+            neutral: "This structure maintains your base revenue while securely moving your pricing logic to a deterministic, zero-latency engine."
         },
         telemetryDetails: {
             throughput: "Supports Black-Friday traffic without sweating.",
@@ -94,7 +94,7 @@ export const dict = {
         engineNote: "Rust + WebAssembly · 0ms latencia",
         empty: {
             headline: "Simula el impacto financiero de tus reglas de negocio",
-            sub: "Elige un escenario, ajusta los parámetros y presiona Ejecutar.",
+            sub: "Descubre cuántos ingresos estás dejando sobre la mesa. Ajusta los parámetros interactivos para simular al instante tu rentabilidad real.",
             stat1label: "Impacto",
             stat1val: "$—",
             stat2label: "Throughput",
@@ -104,9 +104,9 @@ export const dict = {
         },
         results: {
             title: "Análisis de Impacto",
-            baseline: "Línea Base",
+            baseline: "Ingreso Base",
             projected: "Proyección",
-            delta: "Delta"
+            delta: "Impacto Neto"
         },
         telemetry: {
             header: "Reporte del Motor",
@@ -147,9 +147,9 @@ export const dict = {
         },
         businessConclusion: {
             title: "Conclusión de Negocio",
-            positive: "Al aplicar esta nueva estructura, has descubierto {amount} de ingresos perdidos (Billing Drift) que Tempus capturaría automáticamente sin riesgo de caída del servidor.",
-            negative: "Aplicar esta estructura resulta en una variación de {amount} respecto a tu base, permitiéndote desplegar estrategias agresivas con total seguridad.",
-            neutral: "Esta estructura mantiene tus ingresos base alineados, pero migrando tu lógica a un motor determinista de latencia cero."
+            positive: "Al implementar esta estructura de precios, tu negocio generaría {amount} adicionales en ingresos. Tempus procesa estas reglas al instante, asegurando que cobres exactamente lo correcto sin ralentizar tu checkout.",
+            negative: "Aplicar esta estructura resulta en una variación de {amount} respecto a tu nivel base. Esto te permite desplegar estrategias agresivas con total seguridad, conociendo el impacto antes de salir a producción.",
+            neutral: "Esta estructura retiene tus ingresos base alineados, pero migrando tu lógica a un motor determinista infalible."
         },
         telemetryDetails: {
             throughput: "Soporta tráfico de Black-Friday sin sudar.",
