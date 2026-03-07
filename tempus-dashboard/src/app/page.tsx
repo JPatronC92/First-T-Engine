@@ -201,6 +201,11 @@ export default function PublicSimulator() {
                                 <button key={v} className={`${styles.volBtn} ${txCount === Number(v) ? styles.volActive : ''} ${Number(v) === 1000000 ? styles.stressBtn : ''}`} onClick={() => { setHasInteracted(true); setTxCount(Number(v)); }}>{label}</button>
                             ))}
                         </div>
+                        {profile.context.dataContext && (
+                            <p style={{ color: 'var(--text-ghost)', fontSize: '0.65rem', marginTop: '0.5rem', textAlign: 'center' }}>
+                                {profile.context.dataContext}
+                            </p>
+                        )}
                     </div>
 
                     <div className={styles.deployFunnel}>
@@ -215,8 +220,25 @@ export default function PublicSimulator() {
                     {!result ? (
                         <div className={styles.emptyState}>
                             <img src="/tempus_logo.png" alt="Tempus Mark" className={styles.emptyLogo} />
-                            <p className={styles.emptyHeadline}>Engine Ready (0ms Latency)</p>
-                            <p style={{ color: 'var(--text-dim)', marginTop: '8px', fontSize: '0.9rem' }}>Adjust any parameter to kickstart initialization and evaluate rules dynamically.</p>
+                            <h2 className={styles.emptyHeadline}>{profile.title}</h2>
+                            <p style={{ color: 'var(--text-dim)', marginTop: '4px', fontSize: '0.9rem', marginBottom: '2rem' }}>
+                                {lang === 'en' ? 'Lightning-fast rules evaluation engine.' : 'Motor de evaluación hiper-rápido.'}
+                            </p>
+                            
+                            <div className={styles.onboardingSteps}>
+                                <div className={styles.onboardStep}>
+                                    <span className={styles.stepNum}>1</span>
+                                    <span className={styles.stepText}>{lang === 'en' ? 'Select your transaction volume' : 'Elige tu volumen de pagos'}</span>
+                                </div>
+                                <div className={styles.onboardStep}>
+                                    <span className={styles.stepNum}>2</span>
+                                    <span className={styles.stepText}>{lang === 'en' ? 'Adjust your pricing rules instantly' : 'Ajusta tus reglas al instante'}</span>
+                                </div>
+                                <div className={styles.onboardStep}>
+                                    <span className={styles.stepNum}>3</span>
+                                    <span className={styles.stepText}>{lang === 'en' ? 'Discover your true revenue delta' : 'Descubre tu rentabilidad real'}</span>
+                                </div>
+                            </div>
                         </div>
                     ) : (
                         /* ─── RESULTS ─── */
@@ -233,7 +255,15 @@ export default function PublicSimulator() {
                             <div className={styles.statsGrid}>
                                 <div className={styles.stat} style={{ position: 'relative' }}>
                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', marginBottom: '0.3rem' }}>
-                                        <span className={styles.statLabel} style={{ marginBottom: 0 }}>{t.results.baseline}</span>
+                                        <span className={styles.tipWrap}>
+                                            <span className={styles.statLabel} style={{ marginBottom: 0 }}>{t.results.baseline}</span>
+                                            {profile.context.baselineHint && (
+                                                <span className={styles.tip} style={{ marginBottom: '2px' }}>
+                                                    <IconInfoCircle size={10} />
+                                                    <span className={styles.tipText}>{profile.context.baselineHint}</span>
+                                                </span>
+                                            )}
+                                        </span>
                                         <button 
                                             onClick={() => {
                                                 setIsEditingBaseline(!isEditingBaseline);

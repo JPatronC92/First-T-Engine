@@ -44,6 +44,8 @@ export interface PresentationProfileData {
     context: {
         problemStatement: string;
         tempusSolution: string;
+        baselineHint?: string;
+        dataContext?: string;
     };
 }
 
@@ -125,7 +127,9 @@ const UNIVERSAL_DIGITAL_BUSINESS: PricingTemplate = {
             reportLanguage: "financial",
             context: {
                 problemStatement: "Scaling multiple pricing rules—like fixed fees, percentage cuts, and geographic penalties—usually requires messy hardcoded logic, leading to downtime and floating point rounding errors (Billing Drift).",
-                tempusSolution: "Tempus evaluates dozens of complex conditional rules simultaneously across millions of transactions in 0ms with cryptographical determinism."
+                tempusSolution: "Tempus evaluates dozens of complex conditional rules simultaneously across millions of transactions in 0ms with cryptographical determinism.",
+                baselineHint: "e.g., Your current avg. processor fees (2.9% + 30¢)",
+                dataContext: "Simulating diverse $10-$5k global payments"
             }
         },
         es: {
@@ -137,7 +141,9 @@ const UNIVERSAL_DIGITAL_BUSINESS: PricingTemplate = {
             reportLanguage: "financial",
             context: {
                 problemStatement: "Integrar múltiples lógicas de cobro (como comisiones, recargos por riesgo y descuentos) suele requerir código espagueti con alto riesgo de caída y errores de redondeo (Billing Drift).",
-                tempusSolution: "Tempus compone y procesa decenas de reglas condicionales simultáneamente sobre millones de transacciones en 0ms con determinismo total."
+                tempusSolution: "Tempus compone y procesa decenas de reglas condicionales simultáneamente sobre millones de transacciones en 0ms con determinismo total.",
+                baselineHint: "Ej. Costo promedio actual con procesador (2.9% + 30¢)",
+                dataContext: "Simulando pagos globales diversos de $10-$5k"
             }
         }
     },
