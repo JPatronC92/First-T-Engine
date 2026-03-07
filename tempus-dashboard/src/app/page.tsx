@@ -209,9 +209,9 @@ export default function PublicSimulator() {
                 {/* MAIN CANVAS */}
                 <section className={styles.canvas}>
                     {!result ? (
-                        <div className={styles.emptyState} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', opacity: 0.7 }}>
-                            <img src="/tempus_logo.png" alt="Tempus Mark" style={{ height: '64px', opacity: 0.5, mixBlendMode: 'screen', marginBottom: '24px' }} />
-                            <p className={styles.emptyHeadline} style={{ fontSize: '1.2rem', fontWeight: 600 }}>Engine Ready (0ms Latency)</p>
+                        <div className={styles.emptyState}>
+                            <img src="/tempus_logo.png" alt="Tempus Mark" className={styles.emptyLogo} />
+                            <p className={styles.emptyHeadline}>Engine Ready (0ms Latency)</p>
                             <p style={{ color: 'var(--text-dim)', marginTop: '8px', fontSize: '0.9rem' }}>Adjust any parameter to kickstart initialization and evaluate rules dynamically.</p>
                         </div>
                     ) : (
