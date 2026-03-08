@@ -154,7 +154,7 @@ export default function PublicSimulator() {
             {/* ─── NAV ─── */}
             <nav className={styles.nav}>
                 <div className={styles.navLeft}>
-                    <img src="/tempus_logo.png" alt="Tempus Logo" className={styles.navLogo} style={{ height: '32px', width: 'auto', marginRight: '8px', mixBlendMode: 'screen' }} />
+                    <img src="/tempus_logo_transparent.png" alt="Tempus Logo" className={styles.navLogo} style={{ height: '32px', width: 'auto', marginRight: '8px' }} />
                     <span className={styles.brand}>{t.brand}</span>
                     <span className={styles.navDot}>·</span>
                     <span className={styles.navTag}>{t.tagline}</span>
@@ -219,7 +219,7 @@ export default function PublicSimulator() {
                 <section className={styles.canvas}>
                     {!result ? (
                         <div className={styles.emptyState}>
-                            <img src="/tempus_logo.png" alt="Tempus Mark" className={styles.emptyLogo} />
+                            <img src="/tempus_logo_transparent.png" alt="Tempus Mark" className={styles.emptyLogo} />
                             <h2 className={styles.emptyHeadline}>{profile.title}</h2>
                             <p style={{ color: 'var(--text-dim)', marginTop: '4px', fontSize: '0.9rem', marginBottom: '2rem' }}>
                                 {lang === 'en' ? 'Lightning-fast rules evaluation engine.' : 'Motor de evaluación hiper-rápido.'}
