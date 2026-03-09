@@ -5,7 +5,7 @@ settings = get_settings()
 
 engine = create_async_engine(
     settings.SQLALCHEMY_DATABASE_URI,
-    echo=(settings.ENVIRONMENT == "local"),
+    echo=False,
     future=True,
 )
 
