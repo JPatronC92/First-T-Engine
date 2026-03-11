@@ -20,6 +20,8 @@ from src.infrastructure.database import get_db
 
 settings = get_settings()
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 # Para el dashboard y UI
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/auth/login", auto_error=False
@@ -36,6 +38,10 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
 
 def get_password_hash(password):
     return pwd_context.hash(password)

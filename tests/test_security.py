@@ -66,6 +66,18 @@ def test_get_password_hash():
     hashed_password = get_password_hash(password)
     assert hashed_password != password
     assert len(hashed_password) > 0
+    assert hashed_password.startswith("$2b$") or hashed_password.startswith("$2a$")
+
+def test_verify_password_correct():
+    password = "secretpassword"
+    hashed_password = get_password_hash(password)
+    assert verify_password(password, hashed_password) is True
+
+
+def test_verify_password_incorrect():
+    password = "secretpassword"
+    hashed_password = get_password_hash(password)
+    assert verify_password("wrongpassword", hashed_password) is False
 
 
 def test_password_hashing_is_nondeterministic():
@@ -73,3 +85,5 @@ def test_password_hashing_is_nondeterministic():
     hash1 = get_password_hash(password)
     hash2 = get_password_hash(password)
     assert hash1 != hash2
+    assert verify_password(password, hash1) is True
+    assert verify_password(password, hash2) is True
