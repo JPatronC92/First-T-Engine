@@ -10,6 +10,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from passlib.context import CryptContext
+
 from src.core.config import get_settings
 from src.domain.models import APIKey, Tenant
 from src.infrastructure.database import get_db
