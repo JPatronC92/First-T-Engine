@@ -57,3 +57,17 @@ async def test_get_current_tenant_invalid_audience():
 
     assert exc_info.value.status_code == 401
     assert exc_info.value.detail == "Could not validate credentials"
+
+
+def test_get_password_hash():
+    password = "secretpassword"
+    hashed_password = get_password_hash(password)
+    assert hashed_password != password
+    assert len(hashed_password) > 0
+
+
+def test_password_hashing_is_nondeterministic():
+    password = "secretpassword"
+    hash1 = get_password_hash(password)
+    hash2 = get_password_hash(password)
+    assert hash1 != hash2
