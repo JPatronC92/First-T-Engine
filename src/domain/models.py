@@ -3,10 +3,19 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, event
-from sqlalchemy.dialects.postgresql import DATERANGE, JSONB, UUID, ExcludeConstraint
+from functools import lru_cache
+from sqlalchemy.dialects.postgresql import (DATERANGE, JSONB, UUID,
+                                            ExcludeConstraint)
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
+
+
+@lru_cache(maxsize=128)
+def get_cached_validator(schema_json_str: str):
+    import json
+    from jsonschema import Draft7Validator
+    return Draft7Validator(json.loads(schema_json_str))
 
 
 class Base(DeclarativeBase):
@@ -151,21 +160,12 @@ class PricingRuleVersion(Base):
     # Mapped for internal JSON string cache
     __allow_unmapped__ = True
     _logica_json_str: Optional[str] = None
-    _validator: Optional[object] = None
 
     @property
     def validator(self):
-        # We cache the validator globally by schema ID to avoid redundant compilations
-        # across multiple requests/instances.
-        if getattr(PricingRuleVersion, "_validator_cache", None) is None:
-            PricingRuleVersion._validator_cache = {}
-
-        schema_id_str = str(self.schema_id)
-        if schema_id_str not in PricingRuleVersion._validator_cache:
-            from jsonschema import Draft7Validator
-            PricingRuleVersion._validator_cache[schema_id_str] = Draft7Validator(self.context_schema.schema_json)
-
-        return PricingRuleVersion._validator_cache[schema_id_str]
+        import json
+        schema_str = json.dumps(self.context_schema.schema_json, sort_keys=True)
+        return get_cached_validator(schema_str)
 
     @property
     def logica_json_str(self) -> str:
