@@ -119,6 +119,7 @@ class PricingEngine:
                 schema_id = regla_version.context_schema.id
                 if schema_id not in validated_schemas:
                     try:
+                        # Optimized validation caching: avoids compiling schema per rule
                         regla_version.validator.validate(contexto_tx)
                         validated_schemas.add(schema_id)
                     except ValidationError as e:
