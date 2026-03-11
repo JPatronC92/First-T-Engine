@@ -119,7 +119,10 @@ class PricingEngine:
                 schema_id = regla_version.context_schema.id
                 if schema_id not in validated_schemas:
                     try:
-                        # Optimized validation caching: avoids compiling schema per rule
+                        # ⚡ Optimización: Usamos la propiedad .validator de PricingRuleVersion (Draft7Validator cacheado)
+                        # en lugar de validate() para evitar recompilar el esquema en cada iteración.
+                        # Esta optimización mejora drásticamente el rendimiento al validar miles de transacciones,
+                        # evitando recompilar el esquema JSON cada vez que se evalúa la regla.
                         regla_version.validator.validate(contexto_tx)
                         validated_schemas.add(schema_id)
                     except ValidationError as e:

@@ -1,6 +1,9 @@
 import uuid
 from datetime import datetime, timedelta, timezone
+from passlib.context import CryptContext
 from typing import Optional
+
+from passlib.context import CryptContext
 
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -9,6 +12,9 @@ from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from passlib.context import CryptContext
+
+from passlib.context import CryptContext
 
 from src.core.config import get_settings
 from src.domain.models import APIKey, Tenant
@@ -26,9 +32,19 @@ oauth2_scheme = OAuth2PasswordBearer(
 # Para SDKs y B2B
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
+from passlib.context import CryptContext
+
 ALGORITHM = "HS256"
 # In a real app, this should be longer or have refresh tokens
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 def verify_password(plain_password, hashed_password):
