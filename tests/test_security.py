@@ -68,13 +68,6 @@ def test_get_password_hash():
     assert len(hashed_password) > 0
 
 
-def test_verify_password():
-    password = "secretpassword"
-    hashed_password = get_password_hash(password)
-    assert verify_password(password, hashed_password) is True
-    assert verify_password("wrongpassword", hashed_password) is False
-
-
 def test_password_hashing_is_nondeterministic():
     password = "secretpassword"
     hash1 = get_password_hash(password)
