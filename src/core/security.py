@@ -30,6 +30,8 @@ oauth2_scheme = OAuth2PasswordBearer(
 # Para SDKs y B2B
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
+from passlib.context import CryptContext
+
 ALGORITHM = "HS256"
 # In a real app, this should be longer or have refresh tokens
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
