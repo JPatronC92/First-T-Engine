@@ -6,9 +6,11 @@ import pytest
 from fastapi import HTTPException
 
 from src.core.security import (
+    get_password_hash,
     ALGORITHM,
     create_access_token,
-    get_current_tenant, get_password_hash, verify_password,
+    get_current_tenant,
+    get_password_hash,
     settings,
 )
 
