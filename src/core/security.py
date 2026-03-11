@@ -77,6 +77,27 @@ async def get_tenant_by_api_key(api_key: str, db: AsyncSession) -> Optional[Tena
     return None
 
 
+async def get_tenant_by_jwt(token: str, db: AsyncSession) -> Optional[Tenant]:
+    """Retrieve the tenant associated with a given JWT token."""
+    try:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[ALGORITHM],
+            audience=settings.JWT_AUDIENCE,
+        )
+        tenant_id_str: str = payload.get("sub")
+        if tenant_id_str is None:
+            return None
+
+        tenant_id = uuid.UUID(tenant_id_str)
+    except (jwt.PyJWTError, ValueError):
+        return None
+
+    result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
+    return result.scalar_one_or_none()
+
+
 async def get_current_tenant(
     token: str = Depends(oauth2_scheme),
     api_key: str = Depends(api_key_header),
@@ -101,26 +122,7 @@ async def get_current_tenant(
         return tenant
 
     if token:
-        try:
-            payload = jwt.decode(
-                token,
-                settings.SECRET_KEY,
-                algorithms=[ALGORITHM],
-                audience=settings.JWT_AUDIENCE,
-            )
-            tenant_id_str: str = payload.get("sub")
-            if tenant_id_str is None:
-                raise credentials_exception
-
-            tenant_id = uuid.UUID(tenant_id_str)
-        except jwt.PyJWTError:  # Invalid token
-            raise credentials_exception
-        except ValueError:  # Invalid UUID
-            raise credentials_exception
-
-        result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
-        tenant = result.scalar_one_or_none()
-
+        tenant = await get_tenant_by_jwt(token, db)
         if tenant is None:
             raise credentials_exception
         return tenant
