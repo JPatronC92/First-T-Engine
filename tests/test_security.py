@@ -9,6 +9,8 @@ from src.core.security import (
     ALGORITHM,
     create_access_token,
     get_current_tenant,
+    get_password_hash,
+    verify_password,
     settings,
 )
 
@@ -71,3 +73,10 @@ def test_password_hashing_is_nondeterministic():
     hash1 = get_password_hash(password)
     hash2 = get_password_hash(password)
     assert hash1 != hash2
+
+
+def test_verify_password():
+    password = "secretpassword"
+    hashed_password = get_password_hash(password)
+    assert verify_password(password, hashed_password) is True
+    assert verify_password("wrongpassword", hashed_password) is False

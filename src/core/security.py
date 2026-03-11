@@ -5,6 +5,7 @@ from uuid import UUID
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
+from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -26,6 +27,12 @@ api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 ALGORITHM = "HS256"
 # In a real app, this should be longer or have refresh tokens
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password):
