@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tempus Engine - Interactive Demo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">Tempus Engine</span>
+            </div>
+            <nav class="nav">
+                <a href="#" class="nav-link active">Demo</a>
+                <a href="https://github.com/JPatronC92/tempus-engine" class="nav-link" target="_blank">GitHub</a>
+                <a href="#" class="nav-link">Docs</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="hero">
+            <h1>Universal Pricing Engine</h1>
+            <p>Time-travel compliance infrastructure with deterministic fee calculation</p>
+            <div class="hero-badges">
+                <span class="badge">⚡ 1.3M TPS</span>
+                <span class="badge">🔒 Immutable Audit</span>
+                <span class="badge">🦀 Rust Core</span>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Scenario Selector -->
+            <section class="scenario-section">
+                <h2>Choose a Scenario</h2>
+                <div class="scenario-cards">
+                    <div class="scenario-card active" data-scenario="marketplace">
+                        <div class="scenario-icon">🏪</div>
+                        <h3>Marketplace</h3>
+                        <p>Payment method fees, split payments, multi-vendor commissions</p>
+                        <div class="scenario-tags">
+                            <span class="tag">Stripe-like</span>
+                            <span class="tag">Multi-vendor</span>
+                        </div>
+                    </div>
+                    <div class="scenario-card" data-scenario="saas">
+                        <div class="scenario-icon">💻</div>
+                        <h3>SaaS Usage-Based</h3>
+                        <p>API call pricing, tiered usage, metered billing</p>
+                        <div class="scenario-tags">
+                            <span class="tag">Metering</span>
+                            <span class="tag">Tiers</span>
+                        </div>
+                    </div>
+                    <div class="scenario-card" data-scenario="fintech">
+                        <div class="scenario-icon">🏦</div>
+                        <h3>Fintech Mexico</h3>
+                        <p>SIE/SPEI transfers, ISR/IVA withholding, compliance reporting</p>
+                        <div class="scenario-tags">
+                            <span class="tag">Compliance</span>
+                            <span class="tag">Taxes</span>
+                        </div>
+                    </div>
+                    <div class="scenario-card" data-scenario="volume">
+                        <div class="scenario-icon">📊</div>
+                        <h3>Volume Pricing</h3>
+                        <p>Progressive discounts, enterprise tiers, commitment pricing</p>
+                        <div class="scenario-tags">
+                            <span class="tag">Enterprise</span>
+                            <span class="tag">Discounts</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Demo Interface -->
+            <section class="demo-section">
+                <div class="demo-grid">
+                    <!-- Left Panel: Configuration -->
+                    <div class="panel config-panel">
+                        <div class="panel-header">
+                            <h3>Configuration</h3>
+                            <span class="scenario-indicator" id="currentScenario">Marketplace</span>
+                        </div>
+
+                        <div class="config-section">
+                            <label class="config-label">
+                                Transaction Amount
+                                <span class="help-text">Base amount to calculate fees on</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-prefix">$</span>
+                                <input type="number" id="amount" value="1000" min="0" step="0.01" class="input">
+                                <select id="currency" class="input input--small">
+                                    <option value="MXN">MXN</option>
+                                    <option value="USD">USD</option>
+                                    <option value="EUR">EUR</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="config-section" id="dynamicFields">
+                            <!-- Dynamic fields based on scenario -->
+                        </div>
+
+                        <div class="config-section">
+                            <label class="config-label">
+                                Execution Date (Time-Travel)
+                                <span class="help-text">Calculate fees as they were on this date</span>
+                            </label>
+                            <input type="datetime-local" id="executionDate" class="input">
+                        </div>
+
+                        <div class="config-actions">
+                            <button class="btn btn--primary" id="calculateBtn">
+                                <span class="btn-icon">🧮</span>
+                                Calculate Fee
+                            </button>
+                            <button class="btn btn--secondary" id="batchBtn">
+                                <span class="btn-icon">📦</span>
+                                Simulate Batch
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Middle Panel: Rules -->
+                    <div class="panel rules-panel">
+                        <div class="panel-header">
+                            <h3>Active Rules</h3>
+                            <span class="badge badge--live">JSON-Logic</span>
+                        </div>
+                        <div class="rules-container" id="rulesContainer">
+                            <!-- Rules will be populated here -->
+                        </div>
+                        <div class="rules-explanation" id="rulesExplanation"></div>
+                    </div>
+
+                    <!-- Right Panel: Results -->
+                    <div class="panel results-panel">
+                        <div class="panel-header">
+                            <h3>Results</h3>
+                            <span class="badge badge--success" id="resultStatus">Ready</span>
+                        </div>
+
+                        <div class="result-summary" id="resultSummary" style="display: none;">
+                            <div class="result-row">
+                                <span class="result-label">Base Amount</span>
+                                <span class="result-value" id="baseAmount">-</span>
+                            </div>
+                            <div class="result-row result-row--highlight">
+                                <span class="result-label">Total Fees</span>
+                                <span class="result-value result-value--fee" id="totalFees">-</span>
+                            </div>
+                            <div class="result-row result-row--net">
+                                <span class="result-label">Net Settlement</span>
+                                <span class="result-value result-value--net" id="netSettlement">-</span>
+                            </div>
+                            <div class="result-row">
+                                <span class="result-label">Effective Rate</span>
+                                <span class="result-value" id="effectiveRate">-</span>
+                            </div>
+                        </div>
+
+                        <div class="fee-breakdown" id="feeBreakdown" style="display: none;">
+                            <h4>Fee Breakdown</h4>
+                            <div class="fee-list" id="feeList"></div>
+                        </div>
+
+                        <div class="audit-section" id="auditSection" style="display: none;">
+                            <div class="audit-header">
+                                <span class="audit-icon">🔒</span>
+                                <span>Cryptographic Audit</span>
+                            </div>
+                            <div class="audit-hash" id="auditHash"></div>
+                            <p class="audit-text">
+                                This hash proves which exact rules were used for this calculation.
+                                Immutable and auditable.
+                            </p>
+                        </div>
+
+                        <div class="empty-state" id="emptyState">
+                            <div class="empty-icon">🧮</div>
+                            <p>Configure a transaction and click Calculate to see results</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batch Simulation Results -->
+                <div class="batch-results" id="batchResults" style="display: none;">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h3>Batch Simulation Results</h3>
+                            <span class="badge badge--info">1,000 Transactions</span>
+                        </div>
+                        <div class="batch-grid">
+                            <div class="batch-metric">
+                                <span class="batch-metric-value" id="batchVolume">-</span>
+                                <span class="batch-metric-label">Total Volume</span>
+                            </div>
+                            <div class="batch-metric">
+                                <span class="batch-metric-value" id="batchFees">-</span>
+                                <span class="batch-metric-label">Total Fees</span>
+                            </div>
+                            <div class="batch-metric">
+                                <span class="batch-metric-value" id="batchNet">-</span>
+                                <span class="batch-metric-label">Net Settlement</span>
+                            </div>
+                            <div class="batch-metric">
+                                <span class="batch-metric-value" id="batchCount">-</span>
+                                <span class="batch-metric-label">Transactions</span>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Export -->
+                <div class="code-export" id="codeExport" style="display: none;">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h3>Export Code</h3>
+                            <div class="code-tabs">
+                                <button class="code-tab active" data-lang="python">Python</button>
+                                <button class="code-tab" data-lang="nodejs">Node.js</button>
+                                <button class="code-tab" data-lang="curl">cURL</button>
+                            </div>
+                        </div>
+                        <div class="code-content">
+                            <pre class="code-block" id="codeBlock"><code></code></pre>
+                            <button class="btn btn--copy" id="copyCodeBtn">📋 Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- How It Works -->
+            <section class="explanation-section">
+                <h2>How It Works</h2>
+                <div class="explanation-grid">
+                    <div class="explanation-card">
+                        <div class="explanation-step">1</div>
+                        <h4>Define Rules</h4>
+                        <p>Create deterministic pricing rules using JSON-Logic. Rules are immutable and versioned.</p>
+                    </div>
+                    <div class="explanation-card">
+                        <div class="explanation-step">2</div>
+                        <h4>Time-Travel Query</h4>
+                        <p>Query historical rules by date. See exactly what fees applied on any past date.</p>
+                    </div>
+                    <div class="explanation-card">
+                        <div class="explanation-step">3</div>
+                        <h4>Calculate</h4>
+                        <p>Rust core evaluates rules at 1.3M+ TPS with cryptographic audit trails.</p>
+                    </div>
+                    <div class="explanation-card">
+                        <div class="explanation-step">4</div>
+                        <h4>Audit & Prove</h4>
+                        <p>SHA-256 hashes prove which rules were used. Immutable compliance records.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Built with ⚡ by <a href="https://github.com/JPatronC92" target="_blank">JPatronC92</a></p>
+            <p class="footer-license">Licensed under AGPL v3 · <a href="https://github.com/JPatronC92/tempus-engine" target="_blank">View on GitHub</a></p>
+        </div>
+    </footer>
+
+    <script src="scenarios.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+name: Bug Report
+description: Create a report to help us improve
+title: "[BUG] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug!
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is
+      placeholder: When I try to calculate fees, I get an error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What you expected to happen
+      placeholder: The fee calculation should return...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened
+      placeholder: Instead, I got error message...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or error messages
+      description: Paste any relevant logs (redact sensitive data)
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version are you running?
+      placeholder: 0.1.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: Where are you running Tempus?
+      options:
+        - Local development
+        - Docker
+        - Production
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: system
+    attributes:
+      label: System Information
+      description: |
+        - OS: [e.g. Ubuntu 22.04, macOS 14]
+        - Python: [e.g. 3.12.0]
+        - Rust: [e.g. 1.75.0]
+        - PostgreSQL: [e.g. 16.1]
+      placeholder: |
+        OS: Ubuntu 22.04
+        Python: 3.12.0
+        Rust: 1.75.0
+        PostgreSQL: 16.1

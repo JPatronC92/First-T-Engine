@@ -1,0 +1,18 @@
+{
+  "name": "tempus-examples",
+  "version": "1.0.0",
+  "description": "Tempus Engine examples for Node.js",
+  "scripts": {
+    "simple": "ts-node basic_usage.ts",
+    "batch": "ts-node batch_simulation.ts"
+  },
+  "dependencies": {
+    "tempus-node": "file:../../tempus-node",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.4.0"
+  }
+}

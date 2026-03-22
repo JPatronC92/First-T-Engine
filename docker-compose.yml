@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:16
+    container_name: tempus-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tempus_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - tempus_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tempus-api
+    ports:
+      - "8001:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_SERVER=db
+      - POSTGRES_DB=tempus_db
+      - SECRET_KEY=super_secret_jwt_key_for_production
+      - ENVIRONMENT=production
+    command: >
+      bash -c "alembic upgrade head && uvicorn src.interfaces.api.main:app --host 0.0.0.0 --port 8000"
+
+  dashboard:
+    build:
+      context: ./tempus-dashboard
+      dockerfile: Dockerfile
+    container_name: tempus-dashboard
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:8000
+
+volumes:
+  tempus_pgdata:

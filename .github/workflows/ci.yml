@@ -1,0 +1,130 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust:
+    name: Rust Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: tempus_core
+
+      - name: Check formatting
+        run: cd tempus_core && cargo fmt -- --check
+
+      - name: Run clippy
+        run: cd tempus_core && cargo clippy -- -D warnings
+
+      - name: Run tests
+        run: cd tempus_core && cargo test --verbose
+
+      - name: Run benchmarks (smoke test)
+        run: cd tempus_core && cargo bench -- --test
+
+  python:
+    name: Python Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: tempus_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_SERVER: localhost
+      POSTGRES_DB: tempus_db
+      SECRET_KEY: test_secret_key_for_ci_environment_only
+      ENVIRONMENT: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Install btree_gist extension
+        run: |
+          PGPASSWORD=password psql -h localhost -U postgres -d tempus_db -c "CREATE EXTENSION IF NOT EXISTS btree_gist;"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Build Rust extension
+        run: |
+          cd tempus_core
+          uv pip install maturin
+          maturin build --release
+          cd ..
+
+      - name: Run Python tests
+        env:
+          PYTHONPATH: .
+        run: uv run pytest -v --cov=src --cov-report=xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+
+      - name: Check Python formatting
+        run: uv run black --check src tests
+
+      - name: Check import sorting
+        run: uv run isort --check-only src tests
+
+      - name: Run ruff linter
+        run: uv run ruff check src tests
+
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: tempus-engine:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
