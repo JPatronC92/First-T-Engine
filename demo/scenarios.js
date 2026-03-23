@@ -1,132 +1,177 @@
 /**
- * Pre-configured pricing scenarios for the Tempus Engine demo
- * Each scenario includes rules, default values, and explanations
+ * Pre-configured pricing scenarios for the Tempus Engine Demo
+ * Universal examples applicable to any region/industry
  */
 
 const SCENARIOS = {
     marketplace: {
-        name: "Marketplace",
-        description: "Payment method fees for multi-vendor marketplaces",
+        name: "Payment Gateway",
+        description: "Payment processing fees for marketplaces and e-commerce",
         icon: "🏪",
-        currency: "MXN",
+        currency: "USD",
         fields: [
             {
                 name: "payment_method",
                 label: "Payment Method",
                 type: "select",
                 options: [
-                    { value: "credit_card", label: "Credit Card (3.5%)", help: "Visa/Mastercard with processing" },
-                    { value: "debit_card", label: "Debit Card (1.5%)", help: "Immediate debit" },
-                    { value: "spei", label: "SPEI Transfer (1.0%)", help: "Bank transfer" },
-                    { value: "oxxo", label: "OXXO Pay (2.5%)", help: "Cash payment" },
+                    { value: "credit_card", label: "Credit Card (2.9% + $0.30)", help: "Standard card processing" },
+                    { value: "debit_card", label: "Debit Card (1.5%)", help: "Lower risk, lower fee" },
+                    { value: "bank_transfer", label: "Bank Transfer (1.0%)", help: "ACH or wire transfer" },
+                    { value: "digital_wallet", label: "Digital Wallet (2.5%)", help: "Apple Pay, Google Pay, etc." },
                 ],
                 default: "credit_card"
             },
             {
-                name: "installments",
-                label: "Installments (Meses)",
+                name: "risk_level",
+                label: "Risk Assessment",
                 type: "select",
                 options: [
-                    { value: 1, label: "1 (Cash)", help: "No MSI" },
-                    { value: 3, label: "3 MSI", help: "3 months interest-free" },
-                    { value: 6, label: "6 MSI", help: "6 months + extra fee" },
-                    { value: 12, label: "12 MSI", help: "12 months + higher fee" },
+                    { value: "low", label: "Low Risk", help: "Verified merchant, history > 1 year" },
+                    { value: "medium", label: "Medium Risk", help: "New merchant or international" },
+                    { value: "high", label: "High Risk", help: "High chargeback industry" },
+                ],
+                default: "low"
+            },
+            {
+                name: "installments",
+                label: "Installments",
+                type: "select",
+                options: [
+                    { value: 1, label: "Single Payment", help: "No installment fee" },
+                    { value: 3, label: "3 Months", help: "Buy now pay later" },
+                    { value: 6, label: "6 Months", help: "Extended financing" },
                 ],
                 default: 1
             }
         ],
         rules: [
             {
-                name: "Base Commission",
+                name: "Base Processing Fee",
                 type: "percentage",
                 logic: {
                     "if": [
                         { "==": [{ "var": "payment_method" }, "credit_card"] },
-                        { "*": [{ "var": "amount" }, 0.035] },
+                        { "+": [{ "*": [{ "var": "amount" }, 0.029] }, 0.30] },
                         { "if": [
                             { "==": [{ "var": "payment_method" }, "debit_card"] },
                             { "*": [{ "var": "amount" }, 0.015] },
                             { "if": [
-                                { "==": [{ "var": "payment_method" }, "spei"] },
+                                { "==": [{ "var": "payment_method" }, "bank_transfer"] },
                                 { "*": [{ "var": "amount" }, 0.010] },
                                 { "*": [{ "var": "amount" }, 0.025] }
                             ]}
                         ]}
                     ]
                 },
-                explanation: "Different rates based on payment method risk and processing costs"
+                explanation: "Base fee varies by payment method based on processing costs and risk"
             },
             {
-                name: "MSI Installment Fee",
+                name: "Risk Adjustment",
+                type: "percentage",
+                logic: {
+                    "if": [
+                        { "==": [{ "var": "risk_level" }, "high"] },
+                        { "*": [{ "var": "amount" }, 0.015] },
+                        { "if": [
+                            { "==": [{ "var": "risk_level" }, "medium"] },
+                            { "*": [{ "var": "amount" }, 0.005] },
+                            0
+                        ]}
+                    ]
+                },
+                explanation: "Additional fee for higher-risk merchants or transactions"
+            },
+            {
+                name: "Installment Fee",
                 type: "fixed",
                 logic: {
                     "if": [
                         { ">": [{ "var": "installments" }, 1] },
-                        { "*": [{ "var": "installments" }, 0.5] },
+                        { "*": [{ "var": "installments" }, 0.50] },
                         0
                     ]
                 },
-                explanation: "Extra fee for monthly installments (MSI) to cover financing costs"
+                explanation: "Per-installment fee for BNPL (Buy Now Pay Later) services"
             }
         ],
         calculate: (data) => {
             const amount = parseFloat(data.amount);
             const method = data.payment_method;
+            const risk = data.risk_level;
             const installments = parseInt(data.installments) || 1;
 
-            let baseRate;
+            // Base fee calculation
+            let baseFee;
             switch(method) {
-                case "credit_card": baseRate = 0.035; break;
-                case "debit_card": baseRate = 0.015; break;
-                case "spei": baseRate = 0.010; break;
-                case "oxxo": baseRate = 0.025; break;
-                default: baseRate = 0.035;
+                case "credit_card":
+                    baseFee = (amount * 0.029) + 0.30;
+                    break;
+                case "debit_card":
+                    baseFee = amount * 0.015;
+                    break;
+                case "bank_transfer":
+                    baseFee = amount * 0.010;
+                    break;
+                case "digital_wallet":
+                    baseFee = amount * 0.025;
+                    break;
+                default:
+                    baseFee = amount * 0.029;
             }
 
-            const baseFee = amount * baseRate;
-            const installmentFee = installments > 1 ? installments * 0.5 : 0;
+            // Risk adjustment
+            let riskFee = 0;
+            if (risk === "high") riskFee = amount * 0.015;
+            else if (risk === "medium") riskFee = amount * 0.005;
+
+            // Installment fee
+            const installmentFee = installments > 1 ? installments * 0.50 : 0;
+
+            const totalFees = baseFee + riskFee + installmentFee;
 
             return {
                 fees: [
-                    { name: "Base Commission", amount: baseFee },
-                    ...(installments > 1 ? [{ name: "MSI Installment Fee", amount: installmentFee }] : [])
+                    { name: "Processing Fee", amount: baseFee },
+                    ...(riskFee > 0 ? [{ name: "Risk Adjustment", amount: riskFee }] : []),
+                    ...(installmentFee > 0 ? [{ name: "Installment Fee", amount: installmentFee }] : [])
                 ],
-                totalFees: baseFee + installmentFee,
-                netSettlement: amount - (baseFee + installmentFee)
+                totalFees: totalFees,
+                netSettlement: amount - totalFees
             };
         }
     },
 
     saas: {
         name: "SaaS Usage-Based",
-        description: "API call pricing with tiered discounts",
+        description: "API and usage-based pricing with tiered discounts",
         icon: "💻",
         currency: "USD",
         fields: [
             {
                 name: "api_calls",
-                label: "API Calls This Month",
+                label: "Monthly API Calls",
                 type: "number",
                 default: 50000,
                 min: 0,
                 step: 1000,
-                help: "Number of API requests"
+                help: "Number of API requests this month"
             },
             {
                 name: "plan",
                 label: "Pricing Plan",
                 type: "select",
                 options: [
-                    { value: "startup", label: "Startup (no discount)", help: "Pay as you go" },
-                    { value: "growth", label: "Growth (20% discount)", help: "$500/month commitment" },
-                    { value: "enterprise", label: "Enterprise (40% discount)", help: "$5000/month commitment" },
+                    { value: "startup", label: "Startup - Pay as you go", help: "No commitment, standard rates" },
+                    { value: "growth", label: "Growth - 20% discount", help: "$500/month minimum" },
+                    { value: "enterprise", label: "Enterprise - 40% discount", help: "$5000/month minimum" },
                 ],
                 default: "startup"
             }
         ],
         rules: [
             {
-                name: "Tiered Pricing",
+                name: "Tiered Usage",
                 type: "tiered",
                 logic: {
                     "if": [
@@ -148,7 +193,7 @@ const SCENARIOS = {
                         }
                     ]
                 },
-                explanation: "Tiered pricing: $0.01 for first 10k, $0.008 for next 90k, $0.005 beyond"
+                explanation: "Tiered pricing: $0.01 per call for first 10k, $0.008 for next 90k, $0.005 beyond"
             },
             {
                 name: "Plan Discount",
@@ -195,36 +240,44 @@ const SCENARIOS = {
                     ...(discount > 0 ? [{ name: "Plan Discount", amount: -discount }] : [])
                 ],
                 totalFees: finalAmount,
-                netSettlement: 0 // SaaS model: they pay us
+                netSettlement: 0
             };
         }
     },
 
     fintech: {
-        name: "Fintech Mexico",
-        description: "SPEI transfers with ISR/IVA withholding",
+        name: "Financial Services",
+        description: "Cross-border transfers, FX fees, and compliance charges",
         icon: "🏦",
-        currency: "MXN",
+        currency: "USD",
         fields: [
             {
                 name: "transfer_type",
                 label: "Transfer Type",
                 type: "select",
                 options: [
-                    { value: "spei", label: "SPEI (Same Day)", help: "$5 flat + 0.5%" },
-                    { value: "sie",
-                        "label": "SIE (Next Day)",
-                        "help": "$3 flat + 0.3%"
-                    },
-                    { value: "international", label: "SWIFT", help: "$25 + 1.5%" },
+                    { value: "domestic_same_day", label: "Domestic Same-Day", help: "$5 flat + 0.5%" },
+                    { value: "domestic_standard", label: "Domestic Standard", help: "$3 flat + 0.3%" },
+                    { value: "international", label: "International SWIFT", help: "$25 flat + 1.5%" },
+                    { value: "fx_conversion", label: "FX Conversion", help: "0.5% spread" },
                 ],
-                default: "spei"
+                default: "domestic_same_day"
             },
             {
                 name: "is_business",
-                label: "Business Account?",
+                label: "Business Account",
                 type: "checkbox",
-                help: "Apply ISR withholding for businesses"
+                help: "Apply withholding tax for business accounts"
+            },
+            {
+                name: "compliance_level",
+                label: "Compliance Level",
+                type: "select",
+                options: [
+                    { value: "standard", label: "Standard", help: "Basic KYC verification" },
+                    { value: "enhanced", label: "Enhanced", help: "Additional compliance checks + $10" },
+                ],
+                default: "standard"
             }
         ],
         rules: [
@@ -233,28 +286,48 @@ const SCENARIOS = {
                 type: "mixed",
                 logic: {
                     "if": [
-                        { "==": [{ "var": "transfer_type" }, "spei"] },
+                        { "==": [{ "var": "transfer_type" }, "domestic_same_day"] },
                         { "+": [5, { "*": [{ "var": "amount" }, 0.005] }] },
                         { "if": [
-                            { "==": [{ "var": "transfer_type" }, "sie"] },
+                            { "==": [{ "var": "transfer_type" }, "domestic_standard"] },
                             { "+": [3, { "*": [{ "var": "amount" }, 0.003] }] },
-                            { "+": [25, { "*": [{ "var": "amount" }, 0.015] }] }
+                            { "if": [
+                                { "==": [{ "var": "transfer_type" }, "international"] },
+                                { "+": [25, { "*": [{ "var": "amount" }, 0.015] }] },
+                                { "*": [{ "var": "amount" }, 0.005] }
+                            ]}
                         ]}
                     ]
                 },
-                explanation: "Flat fee + percentage based on transfer urgency"
+                explanation: "Flat fee + percentage based on transfer urgency and destination"
             },
             {
-                name: "IVA (16%)",
-                type: "tax",
+                name: "FX Spread",
+                type: "percentage",
                 logic: {
-                    "*": [{ "var": "transfer_fee" }, 0.16]
+                    "if": [
+                        { "==": [{ "var": "transfer_type" }, "fx_conversion"] },
+                        { "*": [{ "var": "amount" }, 0.005] },
+                        0
+                    ]
                 },
-                explanation: "Value Added Tax on financial services"
+                explanation: "Currency conversion spread for international transfers"
             },
             {
-                name: "ISR Withholding",
-                type: "tax",
+                name: "Compliance Fee",
+                type: "fixed",
+                logic: {
+                    "if": [
+                        { "==": [{ "var": "compliance_level" }, "enhanced"] },
+                        10,
+                        0
+                    ]
+                },
+                explanation: "Additional fee for enhanced due diligence and compliance screening"
+            },
+            {
+                name: "Business Tax Withholding",
+                type: "percentage",
                 logic: {
                     "if": [
                         { "==": [{ "var": "is_business" }, true] },
@@ -262,33 +335,44 @@ const SCENARIOS = {
                         0
                     ]
                 },
-                explanation: "Income tax withholding for business accounts (1.5%)"
+                explanation: "Withholding tax for business account transfers"
             }
         ],
         calculate: (data) => {
             const amount = parseFloat(data.amount);
             const type = data.transfer_type;
             const isBusiness = data.is_business === "on" || data.is_business === true;
+            const compliance = data.compliance_level;
 
+            // Transfer fee
             let flatFee, percentage;
             switch(type) {
-                case "spei": flatFee = 5; percentage = 0.005; break;
-                case "sie": flatFee = 3; percentage = 0.003; break;
+                case "domestic_same_day": flatFee = 5; percentage = 0.005; break;
+                case "domestic_standard": flatFee = 3; percentage = 0.003; break;
                 case "international": flatFee = 25; percentage = 0.015; break;
+                case "fx_conversion": flatFee = 0; percentage = 0.005; break;
                 default: flatFee = 5; percentage = 0.005;
             }
 
             const transferFee = flatFee + (amount * percentage);
-            const iva = transferFee * 0.16;
-            const isr = isBusiness ? amount * 0.015 : 0;
 
-            const totalFees = transferFee + iva + isr;
+            // FX spread (if applicable)
+            const fxSpread = type === "fx_conversion" ? amount * 0.005 : 0;
+
+            // Compliance fee
+            const complianceFee = compliance === "enhanced" ? 10 : 0;
+
+            // Business withholding
+            const withholding = isBusiness ? amount * 0.015 : 0;
+
+            const totalFees = transferFee + fxSpread + complianceFee + withholding;
 
             return {
                 fees: [
                     { name: "Transfer Fee", amount: transferFee },
-                    { name: "IVA (16%)", amount: iva },
-                    ...(isr > 0 ? [{ name: "ISR Withholding (1.5%)", amount: isr }] : [])
+                    ...(fxSpread > 0 ? [{ name: "FX Spread", amount: fxSpread }] : []),
+                    ...(complianceFee > 0 ? [{ name: "Compliance Check", amount: complianceFee }] : []),
+                    ...(withholding > 0 ? [{ name: "Tax Withholding", amount: withholding }] : [])
                 ],
                 totalFees: totalFees,
                 netSettlement: amount - totalFees
@@ -297,19 +381,19 @@ const SCENARIOS = {
     },
 
     volume: {
-        name: "Volume Pricing",
-        description: "Enterprise discounts based on annual commitment",
+        name: "Enterprise Volume",
+        description: "Tiered enterprise pricing with volume commitments",
         icon: "📊",
         currency: "USD",
         fields: [
             {
                 name: "seats",
-                label: "Number of Seats",
+                label: "User Seats",
                 type: "number",
                 default: 100,
                 min: 1,
                 step: 1,
-                help: "User seats required"
+                help: "Number of seats required"
             },
             {
                 name: "tier",

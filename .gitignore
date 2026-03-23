@@ -1,74 +1,445 @@
-# ─────────────────────────────────────────
-# Python
-# ─────────────────────────────────────────
+# =============================================================================
+# Tempus Engine - Comprehensive .gitignore
+# =============================================================================
+# This file ignores all files that should not be committed to version control
+# across Python, Rust, Node.js, Next.js, and general development environments.
+# =============================================================================
+
+# =============================================================================
+# SECRETS & ENVIRONMENT - CRITICAL: Never commit these!
+# =============================================================================
+.env
+.env.*
+!.env.example
+.envrc
+*.pem
+*.key
+*.crt
+secrets/
+secrets.json
+credentials.json
+
+# =============================================================================
+# PRIVATE / INTERNAL DOCUMENTATION
+# =============================================================================
+BITACORA.md
+TODO.md
+NOTES.md
+*.private.md
+
+# =============================================================================
+# PYTHON
+# =============================================================================
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+.pdm.toml
+.pdm-python
+.pdm-build/
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.venv
 env/
 venv/
-.venv/
-.python-version
-# uv.lock  <-- Removed from ignore
-# pyproject.toml <-- Removed from ignore
-alembic.ini
-*.egg-info/
-htmlcov/
-.coverage
-.pytest_cache/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# ruff
 .ruff_cache/
 
-# ─────────────────────────────────────────
-# Secrets & Environment
-# ─────────────────────────────────────────
-.env
-# keep .env.example so contributors know what vars are needed
-!.env.example
+# UV
+.uv/
 
-# ─────────────────────────────────────────
-# Private / Internal Documentation
-# BITACORA.md is a private dev journal — keep local, never push.
-# ─────────────────────────────────────────
-BITACORA.md
-
-# ─────────────────────────────────────────
-# Rust
-# ─────────────────────────────────────────
+# =============================================================================
+# RUST
+# =============================================================================
+# Compiled files
 target/
+Cargo.lock
 **/*.rs.bk
+*.pdb
 
-# ─────────────────────────────────────────
-# Node / Next.js
-# ─────────────────────────────────────────
+# =============================================================================
+# NODE / JAVASCRIPT / TYPESCRIPT
+# =============================================================================
 node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache
+.cache/
+.parcel-cache/
+
+# Next.js build output
 .next/
 out/
-*.tsbuildinfo
-tsconfig.tsbuildinfo
-.turbo/
 
-# ─────────────────────────────────────────
-# Docker / DB volumes
-# ─────────────────────────────────────────
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# TypeScript
+*.tsbuildinfo
+
+# =============================================================================
+# NEXT.JS (Specific)
+# =============================================================================
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Production
+/build
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# Turbo
+.turbo
+
+# =============================================================================
+# DOCKER & DATABASE
+# =============================================================================
 tempus_pgdata/
 docker-compose.override.yml
+.docker/
 
-# ─────────────────────────────────────────
-# OS / Editor
-# ─────────────────────────────────────────
-.DS_Store
-Thumbs.db
-.idea/
+# =============================================================================
+# IDEs & EDITORS
+# =============================================================================
+# VS Code
 .vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.history/
+
+# IntelliJ / JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+*.iws
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
 *.swp
 *.swo
 *~
 
-# ─────────────────────────────────────────
-# Distribution / Build
-# ─────────────────────────────────────────
-dist/
-build/
+# Emacs
+*~
+#*#
+.#*
 
+# =============================================================================
+# OPERATING SYSTEM
+# =============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.nfs*
+
+# =============================================================================
+# BUILD & DEPLOYMENT
+# =============================================================================
+build/
+dist/
+*.tgz
+*.tar.gz
+*.zip
+
+# Vercel
 .vercel
+
+# Netlify
+.netlify
+
+# =============================================================================
+# MONITORING & PROFILING
+# =============================================================================
+*.prof
+*.profdata
+profile/
+heapprofile/
+cpuprofile/
+
+# =============================================================================
+# BACKUP FILES
+# =============================================================================
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.save
+*.swp
+
+# =============================================================================
+# LARGE BINARY FILES
+# =============================================================================
+*.exe
+*.dll
+*.so
+*.dylib
+*.bin
+*.dat
+
+# =============================================================================
+# TEMPORARY FILES
+# =============================================================================
+tmp/
+temp/
+*.tmp
+*.temp
