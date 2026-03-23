@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "name": "tempus-engine-demo",
+  "builds": [
+    {
+      "src": "demo/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/demo/$1"
+    }
+  ]
+}
