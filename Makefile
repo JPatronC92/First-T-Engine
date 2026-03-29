@@ -15,7 +15,7 @@ help:
 
 setup:
 	uv sync
-	cd tempus_core && uv run maturin develop --release
+	cd tempus_core && maturin develop --release
 
 db-up:
 	docker compose up db -d
